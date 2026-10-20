@@ -22,7 +22,7 @@ Many people sign up for free trials and subscriptions (streaming services, softw
 | Name | Student ID | GitHub |
 |------|------------|--------|
 | Barkın Akel | 34223 | @barkinakel |
-| Onat Köse | 34383 | [@koseonat |
+| Onat Köse | 34383 | @koseonat |
 | Zeynep Sezer | 34132 | @zeynepsezer827 |
 | Boran Öztaş | 34168 | @boranoztas |
 
@@ -30,4 +30,4 @@ Many people sign up for free trials and subscriptions (streaming services, softw
 ## Tech Stack
 
 - Flutter (Dart)
-- [Firebase – planned]
+- Firebase
