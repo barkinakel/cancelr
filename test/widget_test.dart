@@ -13,7 +13,7 @@ void main() {
 
     await tester.tap(find.text('Log in'));
     await tester.pumpAndSettle();
-    expect(find.text('HOME'), findsOneWidget);
+    expect(find.text('CANCELR'), findsOneWidget);
   });
 
   test('sample data sorts upcoming entries and totals them', () {
