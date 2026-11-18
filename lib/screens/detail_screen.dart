@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/service_logo.dart';
+import '../widgets/app_button.dart';
 
 // Owner: Onat
 class DetailScreen extends StatefulWidget {
@@ -41,7 +42,10 @@ class _DetailScreenState extends State<DetailScreen> {
               onBack: () => Navigator.pop(context),
               onEdit: () => _openEdit(id),
             ),
-            // Info rows come in commit 2.
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.screenPadding),
+              child: _DetailInfo(entry: entry),
+            ),
           ],
         ),
       ),
@@ -139,4 +143,66 @@ String _formatDate(DateTime date) {
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
   return '${date.day} ${months[date.month - 1]} ${date.year}';
+}
+
+class _DetailInfo extends StatelessWidget {
+  const _DetailInfo({required this.entry});
+
+  final Subscription entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = entry.cancellationUrl;
+    final notes = entry.notes;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _InfoRow(label: 'Type', value: '${entry.type.label} · ${entry.category.label}'),
+        _InfoRow(label: 'Price', value: '${entry.priceLabel} · ${entry.billingPeriod.label}'),
+        _InfoRow(label: 'Started', value: _formatDate(entry.startDate)),
+        _InfoRow(label: 'Reminder', value: '${entry.reminderDaysBefore} days before'),
+        if (notes != null && notes.isNotEmpty)
+          _InfoRow(label: 'Notes', value: notes),
+        if (url != null) ...[
+          const SizedBox(height: AppSpacing.s),
+          Center(
+            child: AppButton(
+              label: 'Go to cancellation page',
+              style: AppButtonStyle.link,
+              // Opening links needs the url_launcher package; for now show the link.
+              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(url)),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.label),
+          const SizedBox(width: AppSpacing.l),
+          // Expanded lets long values wrap instead of overflowing.
+          Expanded(
+            child: Text(value, style: AppTextStyles.bodyStrong, textAlign: TextAlign.right),
+          ),
+        ],
+      ),
+    );
+  }
 }
