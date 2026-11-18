@@ -1,10 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cancelr/app.dart';
-import 'package:cancelr/data/subscription_store.dart';
+import 'package:cancelr/data/sample_data.dart';
 import 'package:cancelr/models/subscription.dart';
 
 void main() {
+  setUp(SampleData.reset);
+
   testWidgets('app starts on Login and reaches Home', (tester) async {
     await tester.pumpWidget(const CancelrApp());
     expect(find.text('LOGIN'), findsOneWidget);
@@ -14,23 +16,22 @@ void main() {
     expect(find.text('HOME'), findsOneWidget);
   });
 
-  test('store sorts upcoming entries by nearest date and totals them', () {
-    final store = SubscriptionStore();
-    final upcoming = store.upcoming;
+  test('sample data sorts upcoming entries and totals them', () {
+    final upcoming = SampleData.upcoming;
 
     expect(upcoming.first.name, 'Netflix');
     for (var i = 1; i < upcoming.length; i++) {
       expect(upcoming[i - 1].endDate.isAfter(upcoming[i].endDate), isFalse);
     }
-    expect(store.monthlyTotal, 48);
-    expect(store.savedTotal, 26);
+    expect(SampleData.monthlyTotal, 48);
+    expect(SampleData.savedTotal, 26);
 
-    store.markCancelled('netflix');
-    expect(store.cancelled.any((s) => s.id == 'netflix'), isTrue);
-    expect(store.monthlyTotal, 33);
+    SampleData.markCancelled('netflix');
+    expect(SampleData.cancelled.any((s) => s.id == 'netflix'), isTrue);
+    expect(SampleData.monthlyTotal, 33);
 
-    store.remove('spotify');
-    expect(store.byId('spotify'), isNull);
+    SampleData.remove('spotify');
+    expect(SampleData.byId('spotify'), isNull);
   });
 
   test('daysLeft counts whole days from today', () {

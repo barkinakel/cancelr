@@ -11,7 +11,7 @@ import '../screens/settings_screen.dart';
 import '../screens/sign_up_screen.dart';
 import '../screens/summary_screen.dart';
 
-// Detail and Edit take the entry id as arguments.
+// Detail and Edit get the entry id: pushNamed(context, AppRoutes.detail, arguments: id)
 class AppRoutes {
   AppRoutes._();
 
@@ -26,32 +26,16 @@ class AppRoutes {
   static const String history = '/history';
   static const String settings = '/settings';
 
-  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    final Widget page;
-    switch (settings.name) {
-      case login:
-        page = const LoginScreen();
-      case signUp:
-        page = const SignUpScreen();
-      case forgotPassword:
-        page = const ForgotPasswordScreen();
-      case home:
-        page = const HomeScreen();
-      case detail:
-        page = DetailScreen(entryId: settings.arguments as String);
-      case add:
-        page = const AddScreen();
-      case edit:
-        page = EditScreen(entryId: settings.arguments as String);
-      case summary:
-        page = const SummaryScreen();
-      case history:
-        page = const HistoryScreen();
-      case AppRoutes.settings:
-        page = const SettingsScreen();
-      default:
-        page = const LoginScreen();
-    }
-    return MaterialPageRoute(builder: (_) => page, settings: settings);
-  }
+  static final Map<String, WidgetBuilder> routes = {
+    login: (context) => const LoginScreen(),
+    signUp: (context) => const SignUpScreen(),
+    forgotPassword: (context) => const ForgotPasswordScreen(),
+    home: (context) => const HomeScreen(),
+    detail: (context) => const DetailScreen(),
+    add: (context) => const AddScreen(),
+    edit: (context) => const EditScreen(),
+    summary: (context) => const SummaryScreen(),
+    history: (context) => const HistoryScreen(),
+    settings: (context) => const SettingsScreen(),
+  };
 }
