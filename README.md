@@ -39,7 +39,7 @@ lib/
   main.dart, app.dart   app entry point, theme and routes
   theme/                colors, text styles and spacing shared by all screens
   models/               Subscription model
-  data/                 sample data and the in-memory store
+  data/                 sample data shared by the screens
   routes/               route names for every screen
   widgets/              reusable widgets (buttons, text fields, filter row, logo, bottom bar, dialogs)
   screens/              one file per screen

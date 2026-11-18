@@ -8,9 +8,12 @@ import '../theme/app_text_styles.dart';
 enum NavTab { home, summary }
 
 class AppBottomNav extends StatelessWidget {
-  const AppBottomNav({super.key, required this.current});
+  const AppBottomNav({super.key, required this.current, this.onAdded});
 
   final NavTab current;
+
+  // Called after returning from Add, so the screen can call setState.
+  final VoidCallback? onAdded;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,10 @@ class AppBottomNav extends StatelessWidget {
                 foregroundColor: AppColors.onCard,
                 shape: const CircleBorder(),
                 tooltip: 'Add new',
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.add),
+                onPressed: () async {
+                  await Navigator.pushNamed(context, AppRoutes.add);
+                  onAdded?.call();
+                },
                 child: const Icon(Icons.add, size: 28),
               ),
             ),

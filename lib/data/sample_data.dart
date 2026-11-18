@@ -1,5 +1,74 @@
 import '../models/subscription.dart';
 
+// Shared list for Step 2.2; Firestore replaces it in Step 3.
+// After changing it, call setState on the screen that shows it.
+class SampleData {
+  SampleData._();
+
+  static List<Subscription> subscriptions = buildSampleSubscriptions();
+
+  static List<Subscription> get upcoming {
+    final list = subscriptions
+        .where((s) => s.status != EntryStatus.cancelled)
+        .toList();
+    list.sort((a, b) => a.endDate.compareTo(b.endDate));
+    return list;
+  }
+
+  static List<Subscription> get cancelled {
+    final list = subscriptions
+        .where((s) => s.status == EntryStatus.cancelled)
+        .toList();
+    list.sort((a, b) => b.endDate.compareTo(a.endDate));
+    return list;
+  }
+
+  static Subscription? byId(String id) {
+    for (final s in subscriptions) {
+      if (s.id == id) return s;
+    }
+    return null;
+  }
+
+  static double get monthlyTotal {
+    double total = 0;
+    for (final s in upcoming) {
+      total += s.monthlyCost;
+    }
+    return total;
+  }
+
+  static double get savedTotal {
+    double total = 0;
+    for (final s in cancelled) {
+      total += s.monthlyCost;
+    }
+    return total;
+  }
+
+  static void add(Subscription entry) => subscriptions.add(entry);
+
+  static void update(Subscription entry) {
+    final index = subscriptions.indexWhere((s) => s.id == entry.id);
+    if (index != -1) subscriptions[index] = entry;
+  }
+
+  static void remove(String id) => subscriptions.removeWhere((s) => s.id == id);
+
+  static void markCancelled(String id) => _setStatus(id, EntryStatus.cancelled);
+
+  static void markKept(String id) => _setStatus(id, EntryStatus.kept);
+
+  static void _setStatus(String id, EntryStatus status) {
+    final entry = byId(id);
+    if (entry != null) update(entry.copyWith(status: status));
+  }
+
+  static String newId() => DateTime.now().microsecondsSinceEpoch.toString();
+
+  static void reset() => subscriptions = buildSampleSubscriptions();
+}
+
 // Dates are relative to today so "days left" always looks the same.
 List<Subscription> buildSampleSubscriptions() {
   final today = DateTime.now();

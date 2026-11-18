@@ -1,24 +1,23 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../data/subscription_store.dart';
+import '../data/sample_data.dart';
 import '../routes/app_routes.dart';
 import '../widgets/placeholder_screen.dart';
 
 // Owner: Onat
 class DetailScreen extends StatelessWidget {
-  const DetailScreen({super.key, required this.entryId});
-
-  final String entryId;
+  const DetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final entry = SubscriptionStore.of(context).byId(entryId);
+    final id = ModalRoute.of(context)!.settings.arguments as String;
+    final entry = SampleData.byId(id);
 
     return PlaceholderScreen(
       title: entry?.name ?? 'Detail',
       owner: 'Onat',
       links: [
-        ('Edit', () => Navigator.pushNamed(context, AppRoutes.edit, arguments: entryId)),
+        ('Edit', () => Navigator.pushNamed(context, AppRoutes.edit, arguments: id)),
         ('Back', () => Navigator.pop(context)),
       ],
     );
