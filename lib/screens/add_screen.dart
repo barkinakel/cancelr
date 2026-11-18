@@ -1,67 +1,67 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../data/sample_data.dart';
+import '../models/subscription.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+import '../widgets/subscription_form.dart';
+
 // Owner: Zeynep
-class AddScreen extends StatefulWidget {
+class AddScreen extends StatelessWidget {
   const AddScreen({super.key});
 
-  @override
-  State<AddScreen> createState() => _AddScreenState();
-}
+  Future<void> _save(BuildContext context, Subscription entry) async {
+    SampleData.add(entry);
 
-class _AddScreenState extends State<AddScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+    final days = entry.reminderDaysBefore;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          'SAVED',
+          style: AppTextStyles.title.copyWith(color: AppColors.onCard),
+        ),
+        content: Text(
+          "${entry.name} was added. We'll remind you "
+              "$days ${days == 1 ? 'day' : 'days'} before it ends.",
+          style: AppTextStyles.body.copyWith(color: AppColors.onCard),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(
+              'OK',
+              style: AppTextStyles.bodyStrong.copyWith(color: AppColors.onCard),
+            ),
+          ),
+        ],
+      ),
+    );
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  void _save() {
-    if (_formKey.currentState!.validate()) {
-
-    }
+    // Back to Home once the dialog is closed.
+    if (context.mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('New card'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Service name'),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Enter a service name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _save,
-                  child: const Text('Save'),
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.all(AppSpacing.screenPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FormHeader(
+                title: 'NEW CARD',
+                onClose: () => Navigator.pop(context),
+              ),
+              const SizedBox(height: AppSpacing.l),
+              SubscriptionForm(
+                submitLabel: 'Save',
+                onSubmit: (entry) => _save(context, entry),
+              ),
+            ],
           ),
         ),
       ),
