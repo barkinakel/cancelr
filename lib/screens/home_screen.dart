@@ -7,7 +7,9 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/band_card.dart';
 import '../widgets/category_filter_row.dart';
+import '../widgets/front_card.dart';
 
 // Owner: Barkın
 class HomeScreen extends StatefulWidget {
@@ -48,24 +50,24 @@ class _HomeScreenState extends State<HomeScreen> {
               onChanged: (c) => setState(() => _filter = c),
             ),
             const SizedBox(height: AppSpacing.m),
-            // Temporary list, replaced by the card stack in the next step.
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenPadding,
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screenPadding,
+                  0,
+                  AppSpacing.screenPadding,
+                  AppSpacing.l,
                 ),
-                children: [
-                  for (final s in entries)
-                    ListTile(
-                      title: Text(s.name, style: AppTextStyles.bodyStrong),
-                      subtitle: Text(s.category.label, style: AppTextStyles.label),
-                      trailing: Text(
-                        '${s.daysLeft()}d',
-                        style: AppTextStyles.bodyStrong,
-                      ),
-                      onTap: () => _openDetail(s),
-                    ),
-                ],
+                itemCount: entries.length,
+                itemBuilder: (context, index) {
+                  final s = entries[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.s),
+                    child: index == 0
+                        ? FrontCard(entry: s, onDetails: () => _openDetail(s))
+                        : BandCard(entry: s, onTap: () => _openDetail(s)),
+                  );
+                },
               ),
             ),
           ],
