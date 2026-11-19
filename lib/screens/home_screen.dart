@@ -21,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   SubscriptionCategory? _filter;
+  String? _openId;
 
   Future<void> _openDetail(Subscription s) async {
     await Navigator.pushNamed(context, AppRoutes.detail, arguments: s.id);
@@ -32,6 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final entries = SampleData.upcoming
         .where((s) => _filter == null || s.category == _filter)
         .toList();
+
+    // The open card falls back to the nearest one.
+    var openId = entries.isEmpty ? null : entries.first.id;
+    if (entries.any((s) => s.id == _openId)) openId = _openId;
 
     return Scaffold(
       bottomNavigationBar: AppBottomNav(
@@ -61,11 +66,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: entries.length,
                 itemBuilder: (context, index) {
                   final s = entries[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.s),
-                    child: index == 0
+                  // Each card slides up under the next one.
+                  return Transform.translate(
+                    offset: Offset(0, -AppSpacing.stackOverlap * index),
+                    child: s.id == openId
                         ? FrontCard(entry: s, onDetails: () => _openDetail(s))
-                        : BandCard(entry: s, onTap: () => _openDetail(s)),
+                        : BandCard(
+                            entry: s,
+                            onTap: () => setState(() => _openId = s.id),
+                          ),
                   );
                 },
               ),

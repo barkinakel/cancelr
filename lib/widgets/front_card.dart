@@ -28,7 +28,10 @@ class FrontCard extends StatelessWidget {
       color: entry.category.color,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.l, AppSpacing.m, AppSpacing.xs, AppSpacing.l,
+          AppSpacing.l,
+          AppSpacing.m,
+          AppSpacing.xs,
+          AppSpacing.l + AppSpacing.stackOverlap,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

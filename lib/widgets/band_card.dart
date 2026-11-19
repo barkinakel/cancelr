@@ -30,7 +30,10 @@ class BandCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.l, AppSpacing.s, AppSpacing.xs, AppSpacing.s,
+            AppSpacing.l,
+            AppSpacing.s,
+            AppSpacing.xs,
+            AppSpacing.s + AppSpacing.stackOverlap,
           ),
           child: Row(
             children: [
