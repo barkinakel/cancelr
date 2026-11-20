@@ -6,10 +6,10 @@ import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
-import '../widgets/service_logo.dart';
 import '../widgets/app_button.dart';
+import '../widgets/confirm_dialog.dart';
+import '../widgets/service_logo.dart';
 
-// Owner: Onat
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
 
@@ -18,21 +18,60 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  // Stateful so the screen can refresh after coming back from Edit.
   Future<void> _openEdit(String id) async {
     await Navigator.pushNamed(context, AppRoutes.edit, arguments: id);
     if (!mounted) return;
     setState(() {});
   }
 
+  void _markCancelled(Subscription entry) {
+    SampleData.markCancelled(entry.id);
+    _closeWithMessage('${entry.name} moved to History');
+  }
+
+  void _keep(Subscription entry) {
+    SampleData.update(entry.copyWith(
+      status: EntryStatus.kept,
+      type: EntryType.subscription,
+      endDate: _nextBillingDate(entry),
+    ));
+    _closeWithMessage('Keeping ${entry.name}');
+  }
+
+  Future<void> _delete(Subscription entry) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Delete ${entry.name}?',
+      message: 'This entry and its reminder will be removed.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    );
+    
+    if (!confirmed || !mounted) return;
+    SampleData.remove(entry.id);
+    _closeWithMessage('${entry.name} deleted');
+  }
+
+  void _closeWithMessage(String message) {
+    final messenger = ScaffoldMessenger.of(context);
+    Navigator.pop(context);
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Home opens this screen with the entry's id as the argument.
+   
     final id = ModalRoute.of(context)!.settings.arguments as String;
     final entry = SampleData.byId(id);
-    if (entry == null) return const Scaffold(); // entry was deleted
+    if (entry == null) return const Scaffold(); 
 
     return Scaffold(
+      bottomNavigationBar: _DetailActions(
+        isCancelled: entry.status == EntryStatus.cancelled,
+        onCancelled: () => _markCancelled(entry),
+        onKeep: () => _keep(entry),
+        onDelete: () => _delete(entry),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -108,7 +147,7 @@ class _DetailHeader extends StatelessWidget {
                   children: [
                     const SizedBox(height: AppSpacing.s),
                     ServiceLogo(name: entry.name, url: entry.logoUrl, size: 48),
-                    // FittedBox shrinks the big number on small screens.
+                    
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
@@ -136,15 +175,6 @@ class _DetailHeader extends StatelessWidget {
   }
 }
 
-// e.g. 20 Nov 2026 (the project has no date-formatting package).
-String _formatDate(DateTime date) {
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-  return '${date.day} ${months[date.month - 1]} ${date.year}';
-}
-
 class _DetailInfo extends StatelessWidget {
   const _DetailInfo({required this.entry});
 
@@ -170,7 +200,6 @@ class _DetailInfo extends StatelessWidget {
             child: AppButton(
               label: 'Go to cancellation page',
               style: AppButtonStyle.link,
-              // Opening links needs the url_launcher package; for now show the link.
               onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(url)),
               ),
@@ -197,7 +226,6 @@ class _InfoRow extends StatelessWidget {
         children: [
           Text(label, style: AppTextStyles.label),
           const SizedBox(width: AppSpacing.l),
-          // Expanded lets long values wrap instead of overflowing.
           Expanded(
             child: Text(value, style: AppTextStyles.bodyStrong, textAlign: TextAlign.right),
           ),
@@ -205,4 +233,87 @@ class _InfoRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DetailActions extends StatelessWidget {
+  const _DetailActions({
+    required this.isCancelled,
+    required this.onCancelled,
+    required this.onKeep,
+    required this.onDelete,
+  });
+
+  final bool isCancelled;
+  final VoidCallback onCancelled;
+  final VoidCallback onKeep;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screenPadding, AppSpacing.s,
+          AppSpacing.screenPadding, AppSpacing.l,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!isCancelled) ...[
+              AppButton(label: 'I cancelled it', onPressed: onCancelled),
+              const SizedBox(height: AppSpacing.s),
+            ],
+            Row(
+              children: [
+                if (!isCancelled) ...[
+                  Expanded(
+                    child: AppButton(
+                      label: 'Keep it',
+                      style: AppButtonStyle.secondary,
+                      onPressed: onKeep,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.s),
+                ],
+                Expanded(
+                  child: AppButton(
+                    label: 'Delete',
+                    style: AppButtonStyle.danger,
+                    onPressed: onDelete,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _formatDate(DateTime date) {
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+  return '${date.day} ${months[date.month - 1]} ${date.year}';
+}
+
+DateTime _nextBillingDate(Subscription entry) {
+  final months = entry.billingPeriod == BillingPeriod.yearly ? 12 : 1;
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  var date = entry.endDate;
+  while (date.isBefore(today)) {
+    date = _addMonths(date, months);
+  }
+  return date;
+}
+
+DateTime _addMonths(DateTime date, int months) {
+  final target = DateTime(date.year, date.month + months, 1);
+  final lastDay = DateTime(target.year, target.month + 1, 0).day;
+  final day = date.day > lastDay ? lastDay : date.day;
+  return DateTime(target.year, target.month, day);
 }
