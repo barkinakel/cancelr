@@ -2,9 +2,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/sample_data.dart';
 import '../models/subscription.dart';
+import '../routes/app_routes.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/app_button.dart';
 
 // Owner: Onat
 class SummaryScreen extends StatefulWidget {
@@ -23,6 +26,12 @@ class _SummaryScreenState extends State<SummaryScreen> {
       totals[entry.category] = (totals[entry.category] ?? 0) + entry.monthlyCost;
     }
     return totals;
+  }
+
+  Future<void> _openHistory() async {
+    await Navigator.pushNamed(context, AppRoutes.history);
+    if (!mounted) return;
+    setState(() {}); // History can remove entries, so recalculate.
   }
 
   @override
@@ -67,6 +76,8 @@ class _SummaryScreenState extends State<SummaryScreen> {
                   ],
                 ),
               ),
+            const SizedBox(height: AppSpacing.l),
+            _SavedCard(amount: SampleData.savedTotal, onSeeHistory: _openHistory),
           ],
         ),
       ),
@@ -100,4 +111,46 @@ class _CategoryBand extends StatelessWidget {
 String _money(double amount) {
   final whole = amount == amount.roundToDouble();
   return '\$${whole ? amount.toStringAsFixed(0) : amount.toStringAsFixed(2)}';
+}
+
+class _SavedCard extends StatelessWidget {
+  const _SavedCard({required this.amount, required this.onSeeHistory});
+
+  final double amount;
+  final VoidCallback onSeeHistory;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.l, AppSpacing.s, AppSpacing.l, AppSpacing.s,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: AppSpacing.s),
+                Text('Saved so far', style: AppTextStyles.title),
+                AppButton(
+                  label: 'See history',
+                  style: AppButtonStyle.link,
+                  onPressed: onSeeHistory,
+                ),
+              ],
+            ),
+          ),
+          Text(
+            _money(amount),
+            style: AppTextStyles.bandNumber.copyWith(color: AppColors.textPrimary),
+          ),
+        ],
+      ),
+    );
+  }
 }
