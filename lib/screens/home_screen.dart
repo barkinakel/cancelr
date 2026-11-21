@@ -66,15 +66,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: entries.length,
                 itemBuilder: (context, index) {
                   final s = entries[index];
-                  // Each card slides up under the next one.
-                  return Transform.translate(
-                    offset: Offset(0, -AppSpacing.stackOverlap * index),
-                    child: s.id == openId
-                        ? FrontCard(entry: s, onDetails: () => _openDetail(s))
-                        : BandCard(
-                            entry: s,
-                            onTap: () => setState(() => _openId = s.id),
-                          ),
+                  if (s.id == openId) {
+                    return FrontCard(entry: s, onDetails: () => _openDetail(s));
+                  }
+                  final isLast = index == entries.length - 1;
+                  // A band takes 75% of its height, so the next card covers the rest.
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    heightFactor: isLast ? 1 : 0.75,
+                    child: BandCard(
+                      entry: s,
+                      onTap: () => setState(() => _openId = s.id),
+                    ),
                   );
                 },
               ),
