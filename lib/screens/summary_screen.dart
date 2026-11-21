@@ -108,6 +108,7 @@ class _CategoryBand extends StatelessWidget {
               child: Text(category.label, style: AppTextStyles.cardTitle),
             ),
           ),
+          const SizedBox(width: AppSpacing.m),
           Text(formatMoney(amount), style: AppTextStyles.bandNumber),
         ],
       ),
