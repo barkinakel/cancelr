@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/app_button.dart';
 import '../widgets/band_card.dart';
 import '../widgets/category_filter_row.dart';
 import '../widgets/confirm_dialog.dart';
@@ -68,39 +69,85 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: AppSpacing.m),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screenPadding,
-                  0,
-                  AppSpacing.screenPadding,
-                  AppSpacing.l,
-                ),
-                itemCount: entries.length,
-                itemBuilder: (context, index) {
-                  final s = entries[index];
-                  if (s.id == openId) {
-                    return FrontCard(
-                      entry: s,
-                      onDetails: () => _openDetail(s),
-                      onRemove: () => _remove(s),
-                    );
-                  }
-                  final isLast = index == entries.length - 1;
-                  // A band takes 75% of its height, so the next card covers the rest.
-                  return Align(
-                    alignment: Alignment.topCenter,
-                    heightFactor: isLast ? 1 : 0.75,
-                    child: BandCard(
-                      entry: s,
-                      onTap: () => setState(() => _openId = s.id),
-                      onRemove: () => _remove(s),
+              child: entries.isEmpty
+                  ? _EmptyState(
+                      filtered: _filter != null,
+                      onAdd: () async {
+                        await Navigator.pushNamed(context, AppRoutes.add);
+                        setState(() {});
+                      },
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.screenPadding,
+                        0,
+                        AppSpacing.screenPadding,
+                        AppSpacing.l,
+                      ),
+                      itemCount: entries.length,
+                      itemBuilder: (context, index) {
+                        final s = entries[index];
+                        if (s.id == openId) {
+                          return FrontCard(
+                            entry: s,
+                            onDetails: () => _openDetail(s),
+                            onRemove: () => _remove(s),
+                          );
+                        }
+                        final isLast = index == entries.length - 1;
+                        // A band takes 75% of its height, so the next card covers the rest.
+                        return Align(
+                          alignment: Alignment.topCenter,
+                          heightFactor: isLast ? 1 : 0.75,
+                          child: BandCard(
+                            entry: s,
+                            onTap: () => setState(() => _openId = s.id),
+                            onRemove: () => _remove(s),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.filtered, required this.onAdd});
+
+  final bool filtered;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.xxl),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.inbox_outlined,
+            size: 56,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: AppSpacing.m),
+          Text(
+            filtered ? 'Nothing in this category' : 'Nothing to decide yet',
+            style: AppTextStyles.title,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Add a free trial or subscription to start the countdown.',
+            style: AppTextStyles.label,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.l),
+          AppButton(label: 'Add a trial', onPressed: onAdd),
+        ],
       ),
     );
   }
