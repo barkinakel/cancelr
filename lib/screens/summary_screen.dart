@@ -6,6 +6,7 @@ import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/money.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../widgets/app_button.dart';
 
@@ -54,7 +55,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                _money(SampleData.monthlyTotal),
+                formatMoney(SampleData.monthlyTotal),
                 style: AppTextStyles.amount,
               ),
             ),
@@ -100,17 +101,11 @@ class _CategoryBand extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(child: Text(category.label, style: AppTextStyles.cardTitle)),
-          Text(_money(amount), style: AppTextStyles.bandNumber),
+          Text(formatMoney(amount), style: AppTextStyles.bandNumber),
         ],
       ),
     );
   }
-}
-
-// $48 for whole amounts, $12.50 otherwise. The form only uses dollars in Step 2.2.
-String _money(double amount) {
-  final whole = amount == amount.roundToDouble();
-  return '\$${whole ? amount.toStringAsFixed(0) : amount.toStringAsFixed(2)}';
 }
 
 class _SavedCard extends StatelessWidget {
@@ -146,7 +141,7 @@ class _SavedCard extends StatelessWidget {
             ),
           ),
           Text(
-            _money(amount),
+            formatMoney(amount),
             style: AppTextStyles.bandNumber.copyWith(color: AppColors.textPrimary),
           ),
         ],
