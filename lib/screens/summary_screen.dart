@@ -100,7 +100,14 @@ class _CategoryBand extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Expanded(child: Text(category.label, style: AppTextStyles.cardTitle)),
+                    // scaleDown shrinks a long label on big fonts instead of breaking the word.
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(category.label, style: AppTextStyles.cardTitle),
+            ),
+          ),
           Text(formatMoney(amount), style: AppTextStyles.bandNumber),
         ],
       ),
