@@ -9,6 +9,7 @@ import '../theme/app_text_styles.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../widgets/band_card.dart';
 import '../widgets/category_filter_row.dart';
+import '../widgets/confirm_dialog.dart';
 import '../widgets/front_card.dart';
 
 // Owner: Barkın
@@ -26,6 +27,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openDetail(Subscription s) async {
     await Navigator.pushNamed(context, AppRoutes.detail, arguments: s.id);
     setState(() {});
+  }
+
+  Future<void> _remove(Subscription s) async {
+    final ok = await showConfirmDialog(
+      context,
+      title: 'Delete ${s.name}?',
+      message: 'It will be removed from your list.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    );
+    if (ok) setState(() => SampleData.remove(s.id));
   }
 
   @override
@@ -67,7 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   final s = entries[index];
                   if (s.id == openId) {
-                    return FrontCard(entry: s, onDetails: () => _openDetail(s));
+                    return FrontCard(
+                      entry: s,
+                      onDetails: () => _openDetail(s),
+                      onRemove: () => _remove(s),
+                    );
                   }
                   final isLast = index == entries.length - 1;
                   // A band takes 75% of its height, so the next card covers the rest.
@@ -77,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: BandCard(
                       entry: s,
                       onTap: () => setState(() => _openId = s.id),
+                      onRemove: () => _remove(s),
                     ),
                   );
                 },
