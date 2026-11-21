@@ -135,7 +135,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
 
   // If the end date is before the start date, shows an error.
   String? _validateEndDate(String? _) {
-    if (!_endDate.isAfter(_startDate)) return 'Must be after start date';
+    if (!_endDate.isAfter(_startDate)) return 'Invalid end date';
     return null;
   }
 
