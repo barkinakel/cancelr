@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../data/sample_data.dart';
 import '../models/subscription.dart';
 import '../theme/app_colors.dart';
@@ -47,6 +48,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   @override
   void initState() {
     super.initState();
+    // In Add screen it opens empty. In Edit screen the form opens filled with the card's info.
     final initial = widget.initial;
     final today = DateTime.now();
 
@@ -81,24 +83,20 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   }
 
   //  helpers
-
   static const _months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
-
   String _formatDate(DateTime date) =>
       '${date.day} ${_months[date.month - 1]} ${date.year}';
-
   String _formatPrice(double price) => price == price.roundToDouble()
       ? price.toStringAsFixed(0)
       : price.toStringAsFixed(2);
-
   double? _parsePrice(String? text) =>
       double.tryParse((text ?? '').trim().replaceAll(',', '.'));
-
   List<int> get _reminderOptions => {1, 3, 7, _reminderDays}.toList()..sort();
 
+  // When a date field is tapped, opens a calendar to pick the date.
   Future<void> _pickDate({required bool isStart}) async {
     final picked = await showDatePicker(
       context: context,
@@ -119,13 +117,15 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     });
   }
 
-  //  validators
+  // validators
 
+  // If the service name is empty, shows an error under the field.
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) return 'Enter a service name';
     return null;
   }
 
+  // If the price is empty, not a number or 0, shows an error.
   String? _validatePrice(String? value) {
     if (value == null || value.trim().isEmpty) return 'Enter a price';
     final price = _parsePrice(value);
@@ -133,11 +133,13 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     return null;
   }
 
+  // If the end date is before the start date, shows an error.
   String? _validateEndDate(String? _) {
     if (!_endDate.isAfter(_startDate)) return 'Must be after start date';
     return null;
   }
 
+  // Link is optional, but if written it must start with https://
   String? _validateLink(String? value) {
     final link = (value ?? '').trim();
     if (link.isEmpty) return null; // optional field
@@ -147,8 +149,9 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     return null;
   }
 
-  // submit
+  //  submit
 
+  // When Save is pressed checks all fields and if there are no errors creates the card.
   void _submit() {
     setState(() => _submitted = true);
     if (!_formKey.currentState!.validate()) return;
@@ -176,8 +179,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     widget.onSubmit(entry);
   }
 
-  //  UI
-
+  // UI
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -190,6 +192,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
         children: [
           Text('Category sets the card color', style: AppTextStyles.label),
           const SizedBox(height: AppSpacing.s),
+          // Category buttons: the selected one takes the category color.
           Row(
             children: [
               for (final category in SubscriptionCategory.values) ...[
@@ -207,6 +210,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.m),
+          // Choose Free trial or Subscription.
           Row(
             children: [
               for (final type in EntryType.values) ...[
@@ -224,6 +228,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.l),
+          // Service name field (required).
           AppTextField(
             label: 'Service name',
             hint: 'Enter a service name',
@@ -231,6 +236,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             validator: _validateName,
           ),
           const SizedBox(height: AppSpacing.m),
+          // Start and end date fields. Tapping opens the calendar.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -255,6 +261,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.m),
+          // Price field and billing period (Monthly / Yearly).
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -293,6 +300,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.m),
+          // How many days before to remind, and the cancellation link.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -332,12 +340,14 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.m),
+          // Optional notes.
           AppTextField(
             label: 'Notes (optional)',
             hint: 'Add a note',
             controller: _notesController,
           ),
           const SizedBox(height: AppSpacing.xl),
+          // Save button ("Save" in Add, "Save changes" in Edit).
           AppButton(label: widget.submitLabel, onPressed: _submit),
         ],
       ),

@@ -11,6 +11,7 @@ import '../widgets/subscription_form.dart';
 class AddScreen extends StatelessWidget {
   const AddScreen({super.key});
 
+  // After a valid save: adds the card, shows the "Saved" message, then goes back to Home.
   Future<void> _save(BuildContext context, Subscription entry) async {
     SampleData.add(entry);
 
@@ -52,6 +53,7 @@ class AddScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Title and close (X) button. X goes back without saving.
               FormHeader(
                 title: 'NEW CARD',
                 onClose: () => Navigator.pop(context),
