@@ -26,7 +26,7 @@ class AppBottomNav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _tab(context, 'Home', NavTab.home, AppRoutes.home),
+            Flexible(child: _tab(context, 'Home', NavTab.home, AppRoutes.home)),
             SizedBox(
               width: 56,
               height: 56,
@@ -44,7 +44,7 @@ class AppBottomNav extends StatelessWidget {
                 child: const Icon(Icons.add, size: 28),
               ),
             ),
-            _tab(context, 'Summary', NavTab.summary, AppRoutes.summary),
+            Flexible(child: _tab(context, 'Summary', NavTab.summary, AppRoutes.summary)),
           ],
         ),
       ),
@@ -60,11 +60,15 @@ class AppBottomNav extends StatelessWidget {
       style: TextButton.styleFrom(
         minimumSize: const Size(72, AppSpacing.minTapTarget),
       ),
-      child: Text(
+            // Shrinks the label on big fonts so the bar never overflows.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
         label,
         style: isCurrent
             ? AppTextStyles.bodyStrong
             : AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+        ),
       ),
     );
   }

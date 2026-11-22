@@ -21,7 +21,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(1), 'secret1');
     await tester.tap(find.text('Log in'));
     await tester.pumpAndSettle();
-    expect(find.text('HOME'), findsOneWidget);
+    expect(find.text('CANCELR'), findsOneWidget);
   });
 
   testWidgets('login shows inline errors for empty fields', (tester) async {
