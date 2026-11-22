@@ -2,18 +2,44 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cancelr/app.dart';
 import 'package:cancelr/data/sample_data.dart';
+import 'package:cancelr/data/user_settings.dart';
 import 'package:cancelr/models/subscription.dart';
+import 'package:cancelr/utils/validation_utils.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
-  setUp(SampleData.reset);
+  setUp(() {
+    SampleData.reset();
+    UserSettings.reset();
+  });
 
   testWidgets('app starts on Login and reaches Home', (tester) async {
     await tester.pumpWidget(const CancelrApp());
-    expect(find.text('LOGIN'), findsOneWidget);
+    expect(find.text('CANCELR'), findsOneWidget);
 
+    await tester.enterText(find.byType(TextFormField).at(0), 'boran@email.com');
+    await tester.enterText(find.byType(TextFormField).at(1), 'secret1');
     await tester.tap(find.text('Log in'));
     await tester.pumpAndSettle();
     expect(find.text('CANCELR'), findsOneWidget);
+  });
+
+  testWidgets('login shows inline errors for empty fields', (tester) async {
+    await tester.pumpWidget(const CancelrApp());
+
+    await tester.tap(find.text('Log in'));
+    await tester.pump();
+    expect(find.text('Enter your email'), findsOneWidget);
+    expect(find.text('Enter your password'), findsOneWidget);
+    expect(find.text('CANCELR'), findsOneWidget);
+  });
+
+  test('validation utils check email and passwords', () {
+    expect(ValidationUtils.validateEmail('boran@email.com'), isNull);
+    expect(ValidationUtils.validateEmail('boran@'), 'Enter a valid email');
+    expect(ValidationUtils.validatePassword('123'), isNotNull);
+    expect(ValidationUtils.validateConfirmPassword('abc123', 'abc124'),
+        'Passwords do not match');
   });
 
   test('sample data sorts upcoming entries and totals them', () {
